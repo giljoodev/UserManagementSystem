@@ -32,7 +32,6 @@ namespace UserManagementSystem.Database
             IConfiguration config = new ConfigurationBuilder().AddJsonFile("appsettings.json").AddEnvironmentVariables().Build();
             string connectionString = config.GetRequiredSection("ConnectionStrings:UserManagementSystem").Get<string>();
             optionsBuilder.UseSqlServer(connectionString);
-            //optionsBuilder.UseSqlServer("Server=(localdb)\\mssqllocaldb;Database=UserManagementSystem;Trusted_Connection=True;");
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)

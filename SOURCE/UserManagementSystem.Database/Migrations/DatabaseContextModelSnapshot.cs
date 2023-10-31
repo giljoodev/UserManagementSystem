@@ -40,12 +40,12 @@ namespace UserManagementSystem.Database.Migrations
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("NVARCHAR(20)")
+                        .HasColumnType("NVARCHAR(5)")
                         .HasColumnOrder(1);
 
                     b.Property<string>("PhoneNumber")
                         .IsRequired()
-                        .HasColumnType("NVARCHAR(12)")
+                        .HasColumnType("NVARCHAR(11)")
                         .HasColumnOrder(3);
 
                     b.HasKey("Index");

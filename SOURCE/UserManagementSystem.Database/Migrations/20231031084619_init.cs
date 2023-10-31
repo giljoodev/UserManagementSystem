@@ -18,9 +18,9 @@ namespace UserManagementSystem.Database.Migrations
                 {
                     Index = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Name = table.Column<string>(type: "NVARCHAR(20)", nullable: false),
+                    Name = table.Column<string>(type: "NVARCHAR(5)", nullable: false),
                     Age = table.Column<short>(type: "smallint", nullable: false),
-                    PhoneNumber = table.Column<string>(type: "NVARCHAR(12)", nullable: false),
+                    PhoneNumber = table.Column<string>(type: "NVARCHAR(11)", nullable: false),
                     IsInit = table.Column<bool>(type: "bit", nullable: false)
                 },
                 constraints: table =>
