@@ -7,23 +7,24 @@ namespace UserManagementSystem.Database
     public class DatabaseContext : DbContext
     {
         public List<User> Users { get; set; } = new List<User>();
-        public virtual DbSet<User> User { get; set; }
+        public virtual DbSet<User> TblUser { get; set; }
 
         public DatabaseContext()
         {
-            //try
-            //{
-            //    if (Database.CanConnect() == true)
-            //    {
-            //        return;
-            //    }
+            //DB 접속 되지 않을 경우 DB Migrate 수행
+            try
+            {
+                if (Database.CanConnect() == true)
+                {
+                    return;
+                }
 
-            //    Database.Migrate();
-            //}
-            //catch
-            //{
-            //    throw;
-            //}
+                Database.Migrate();
+            }
+            catch
+            {
+                throw;
+            }
         }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)

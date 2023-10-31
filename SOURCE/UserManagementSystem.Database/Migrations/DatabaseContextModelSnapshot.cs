@@ -50,7 +50,7 @@ namespace UserManagementSystem.Database.Migrations
 
                     b.HasKey("Index");
 
-                    b.ToTable("User");
+                    b.ToTable("TblUser");
 
                     b.HasData(
                         new

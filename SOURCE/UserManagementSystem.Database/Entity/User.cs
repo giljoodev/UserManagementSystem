@@ -14,6 +14,7 @@ namespace UserManagementSystem.Database.Entity
         public short  Age          { get; set; }
         [Column(Order = 3, TypeName = "NVARCHAR(12)")]
         public string PhoneNumber  { get; set; }
+        //초기 생성 여부를 확인하기 위한 컬럼
         [Column(Order = 4)]
         public bool IsInit         { get; set; } = false;
     }

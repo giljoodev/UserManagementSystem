@@ -1,0 +1,93 @@
+﻿<UserControl x:Class="UserManagementSystem.UI.View.UserListView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+             xmlns:local="clr-namespace:UserManagementSystem.UI.View"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="820">
+    <Grid>
+        <StackPanel Orientation="Horizontal">
+            <StackPanel Orientation="Vertical" Width="550">
+                <Grid>
+                    <StackPanel Orientation="Horizontal">
+                        <ComboBox Style="{StaticResource MaterialDesignFloatingHintComboBox}" SelectedItem="{Binding ComboBoxSelectItem}" SelectedIndex="0" Width="80" Margin="10,0,0,0">
+                            <ComboBoxItem Content="Name"></ComboBoxItem>
+                            <ComboBoxItem Content="PhoneNumber"></ComboBoxItem>
+                        </ComboBox>
+                        <TextBox Style="{StaticResource MaterialDesignFloatingHintTextBox}" Text="{Binding SelectText}" materialDesign:HintAssist.Hint="검색할 내용을 입력해주세요" Margin="10,0,0,0" Width="300"></TextBox>
+                    </StackPanel>
+                    <Button Content="조회" HorizontalAlignment="Right" Width="80" Height="30" FontWeight="Bold" FontSize="12" Command="{Binding SearchCommand}" IsEnabled="{Binding IsNotRuning}" Margin="0,0,10,0"></Button>
+                </Grid>
+                <DataGrid ItemsSource="{Binding UserTable}" IsEnabled="{Binding IsNotRuning}" FontSize="13" IsReadOnly="True" AutoGenerateColumns="False" CanUserResizeColumns="False" Margin="10,30,10,10" MaxHeight="290">
+                    <DataGrid.Resources>
+                        <Style TargetType="{x:Type DataGridColumnHeader}">
+                            <Setter Property="HorizontalContentAlignment" Value="Left" />
+                        </Style>
+                    </DataGrid.Resources>
+                    <DataGrid.CellStyle>
+                        <Style TargetType="DataGridCell">
+                            <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                            <Setter Property="FontSize" Value="15" />
+                            <Setter Property="Width" Value="auto" />
+                        </Style>
+                    </DataGrid.CellStyle>
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="Index"       Binding="{Binding Index}"       IsReadOnly="True" Width="1*"/>
+                        <DataGridTextColumn Header="Name"        Binding="{Binding Name}"        IsReadOnly="True" Width="1*"/>
+                        <DataGridTextColumn Header="Age"         Binding="{Binding Age}"         IsReadOnly="True" Width="1*"/>
+                        <DataGridTextColumn Header="PhoneNumber" Binding="{Binding PhoneNumber}" IsReadOnly="True" Width="2*"/>
+                        <DataGridTemplateColumn Header="Delete" Width="1*">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <Button Content="{materialDesign:PackIcon Kind=Delete}" Tag="Delete" Background="Transparent" BorderBrush="Transparent" Foreground="Black" ToolTip="Remove User" Command="{Binding RelativeSource={RelativeSource AncestorType={x:Type UserControl},Mode=FindAncestor},Path=DataContext.RemoveCommand}" CommandParameter="{Binding SelectedItem , RelativeSource={RelativeSource AncestorType={x:Type DataGrid}}}">
+                                        <Button.Style>
+                                            <Style TargetType="Button">
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding IsInit}" Value="False">
+                                                        <Setter Property="Visibility" Value="Visible" />
+                                                    </DataTrigger>
+                                                    <DataTrigger Binding="{Binding IsInit}" Value="True">
+                                                        <Setter Property="Visibility" Value="Hidden" />
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Button.Style>
+                                    </Button>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+                    </DataGrid.Columns>
+                    <DataGrid.InputBindings>
+                        <MouseBinding Gesture="LeftDoubleClick" Command="{Binding LeftDoubleCommand}" CommandParameter="{Binding SelectedItem, RelativeSource={RelativeSource AncestorType={x:Type DataGrid}}}"/>
+                    </DataGrid.InputBindings>
+                </DataGrid>
+                <Button Content="추가" HorizontalAlignment="Right" Width="80" Height="30" FontWeight="Bold" FontSize="12" Command="{Binding AddCommand}" Margin="0,0,10,0"></Button>
+            </StackPanel>
+            <StackPanel Orientation="Vertical" VerticalAlignment="Center" Width="250" Visibility="{Binding UserDataViewVisbility}">
+                <Grid Margin="1">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="2*"></ColumnDefinition>
+                        <ColumnDefinition Width="3*"></ColumnDefinition>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition></RowDefinition>
+                        <RowDefinition></RowDefinition>
+                        <RowDefinition></RowDefinition>
+                    </Grid.RowDefinitions>
+                    <Label Grid.Row="0" Grid.Column="0" VerticalContentAlignment="Bottom">Name</Label>
+                    <Label Grid.Row="1" Grid.Column="0" VerticalContentAlignment="Bottom">Age</Label>
+                    <Label Grid.Row="2" Grid.Column="0" VerticalContentAlignment="Bottom">Phone Number</Label>
+                    <TextBox Grid.Row="0" Grid.Column="1" Text="{Binding Name}"        materialDesign:HintAssist.Hint="이름을 입력해주세요"     Style="{StaticResource MaterialDesignFloatingHintTextBox}" MaxLength="5"></TextBox>
+                    <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding Age}"         materialDesign:HintAssist.Hint="나이를 입력해주세요"     Style="{StaticResource MaterialDesignFloatingHintTextBox}" MaxLength="3"></TextBox>
+                    <TextBox Grid.Row="2" Grid.Column="1" Text="{Binding PhoneNumber}" materialDesign:HintAssist.Hint="전화번호를 입력해주세요" Style="{StaticResource MaterialDesignFloatingHintTextBox}" MaxLength="11"></TextBox>
+                </Grid>
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,10,0,0">
+                    <Button Width="60" Content="갱신" Margin="10" Visibility="{Binding UpdateVisibility}" Command="{Binding UpdateCommand}" IsEnabled="{Binding IsNotRuning}" ></Button>
+                    <Button Width="60" Content="추가" Margin="10" Visibility="{Binding InsertVisibility}" Command="{Binding InsertCommand}" IsEnabled="{Binding IsNotRuning}" ></Button>
+                </StackPanel>
+            </StackPanel>
+        </StackPanel>
+    </Grid>
+</UserControl>

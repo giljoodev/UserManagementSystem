@@ -11,8 +11,8 @@ using UserManagementSystem.Database;
 namespace UserManagementSystem.Database.Migrations
 {
     [DbContext(typeof(DatabaseContext))]
-    [Migration("20231030085527_Init")]
-    partial class Init
+    [Migration("20231030095309_init")]
+    partial class init
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -53,7 +53,7 @@ namespace UserManagementSystem.Database.Migrations
 
                     b.HasKey("Index");
 
-                    b.ToTable("User");
+                    b.ToTable("TblUser");
 
                     b.HasData(
                         new

@@ -7,13 +7,13 @@
 namespace UserManagementSystem.Database.Migrations
 {
     /// <inheritdoc />
-    public partial class Init : Migration
+    public partial class init : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
-                name: "User",
+                name: "TblUser",
                 columns: table => new
                 {
                     Index = table.Column<int>(type: "int", nullable: false)
@@ -25,11 +25,11 @@ namespace UserManagementSystem.Database.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_User", x => x.Index);
+                    table.PrimaryKey("PK_TblUser", x => x.Index);
                 });
 
             migrationBuilder.InsertData(
-                table: "User",
+                table: "TblUser",
                 columns: new[] { "Index", "Age", "IsInit", "Name", "PhoneNumber" },
                 values: new object[,]
                 {
@@ -50,7 +50,7 @@ namespace UserManagementSystem.Database.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "User");
+                name: "TblUser");
         }
     }
 }
