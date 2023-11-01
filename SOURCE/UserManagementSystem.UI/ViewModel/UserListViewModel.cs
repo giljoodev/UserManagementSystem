@@ -33,24 +33,31 @@ namespace UserManagementSystem.UI.ViewModel
         public ComboBoxItem ComboBoxSelectItem    { get { return _comboBoxSelectItem;    } set { _comboBoxSelectItem    = value; OnPropertyChanged(); } }
         public DataTable    UserTable             { get { return _userTable;             } set { _userTable             = value; OnPropertyChanged(); } }
         public string       SelectText            { get { return _selectText;            } set { _selectText            = value; OnPropertyChanged(); } }
-        public User        UserInfo               { get { return _userInfo;              } set { _userInfo              = value; OnPropertyChanged(); } }
+        public User         UserInfo              { get { return _userInfo;              } set { _userInfo              = value; OnPropertyChanged(); } }
         public Visibility   UserDataViewVisbility { get { return _userDataViewVisbility; } set { _userDataViewVisbility = value; OnPropertyChanged(); } }
         public Visibility   UpdateVisibility      { get { return _updateVisibility;      } set { _updateVisibility      = value; OnPropertyChanged(); } }
         public Visibility   InsertVisibility      { get { return _insertVisibility;      } set { _insertVisibility      = value; OnPropertyChanged(); } }
         public bool         IsNotRuning           { get { return _isNotRuning;           } set { _isNotRuning           = value; OnPropertyChanged(); } } //데이터 삽입 삭제 갱신 시 처리 중인 데이터에 접근하는 것을 막기 위해 사용하는 flag 변수
-
-        #endregion
 
         public string Name
         {
             get { return _name; }
             set
             {
+                //TextBox 내용 초기화 시 사용
+                if (value == string.Empty)
+                {
+                    _name = value;
+                    OnPropertyChanged();
+                    return;
+                }
+
+                //한국 이름 관련 정규표현식 작성
                 Regex regex = new Regex(@"^[가-힣]{1,5}$");
 
                 Match m = regex.Match(value);
 
-                if (!m.Success && value != string.Empty)
+                if (!m.Success)
                 {
                     MessageBox.Show("이름을 다시 입력해주세요");
                     _name = string.Empty;
@@ -70,11 +77,20 @@ namespace UserManagementSystem.UI.ViewModel
             get { return _age; }
             set
             {
+                //TextBox 내용 초기화 시 사용
+                if (value == string.Empty)
+                {
+                    _age = value;
+                    OnPropertyChanged();
+                    return;
+                }
+
+                //나이 관련 정규표현식 작성
                 Regex regex = new Regex(@"[0-9]{1,3}");
 
                 Match m = regex.Match(value);
-                
-                if (!m.Success && value != string.Empty)
+
+                if (!m.Success)
                 {
                     MessageBox.Show("나이를 다시 입력해주세요");
                     _age = string.Empty;
@@ -93,11 +109,20 @@ namespace UserManagementSystem.UI.ViewModel
             get { return _phoneNumber; } 
             set
             {
+                //TextBox 내용 초기화 시 사용
+                if (value == string.Empty)
+                {
+                    _phoneNumber = value;
+                    OnPropertyChanged();
+                    return;
+                }
+
+                //휴대폰 번호 관련 정규표현식 작성
                 Regex regex = new Regex(@"01{1}[016789]{1}[0-9]{3,4}[0-9]{4}");
 
                 Match m = regex.Match(value);
 
-                if (!m.Success && value != string.Empty)
+                if (!m.Success)
                 {
                     MessageBox.Show("전화번호를 다시 입력해주세요");
                     _phoneNumber = string.Empty;
@@ -111,10 +136,12 @@ namespace UserManagementSystem.UI.ViewModel
                 OnPropertyChanged();
             }
         }
-      
-        #region private 선언부
-        private ComboBoxItem _comboBoxSelectItem = new ComboBoxItem() { Content = "Name" };
+        #endregion
 
+        #region private 선언부
+        // lock문에 사용될 객체
+        private object       _lockObject = new object();
+        private ComboBoxItem _comboBoxSelectItem = new ComboBoxItem() { Content = "Name" };
         private DataTable    _userTable;
         private User?        _userInfo;
         private string       _name;
@@ -129,11 +156,11 @@ namespace UserManagementSystem.UI.ViewModel
 
         public UserListViewModel()
         {
-            SearchCommand     = new Command(SearchData);
-            AddCommand        = new Command(CreateUserData);
-            UpdateCommand     = new Command(UpdateUserData);
-            InsertCommand     = new Command(InsertUserData);
 
+            SearchCommand     = new GenerateThreadCommand(SearchData, _lockObject);
+            UpdateCommand     = new GenerateThreadCommand(UpdateUserData, _lockObject);
+            InsertCommand     = new GenerateThreadCommand(InsertUserData, _lockObject);
+            AddCommand        = new Command(CreateUserData);
             LeftDoubleCommand = new ParameterizedCommand(ChoiceUserData);
             RemoveCommand     = new ParameterizedCommand(RemoveUserData);
 
@@ -149,32 +176,26 @@ namespace UserManagementSystem.UI.ViewModel
             try
             {
                 UserDataViewVisbility = Visibility.Collapsed;
-
-                Thread newThread = new Thread(() =>
+                Thread.Sleep(1000);
+                using (var context = new DatabaseContext())
                 {
-                    Thread.Sleep(1000);
-
-                    using (var context = new DatabaseContext())
+                    // Dispatcher를 사용하여 UI 쓰레드가 점유하고 있는 객체 접근
+                    Application.Current.Dispatcher.Invoke(() =>
                     {
-                        // Dispatcher를 사용하여 UI 쓰레드가 점유하고 있는 객체 접근
-                        Application.Current.Dispatcher.Invoke(() =>
+                        //조건에 따라 Table 탐색 조건 변경
+                        switch (ComboBoxSelectItem.Content.ToString())
                         {
-                            switch (ComboBoxSelectItem.Content.ToString())
-                            {
-                                case "Name":
-                                    UserTable = SelectText is null ? context.TblUser.ToList().ToDataTable() : context.TblUser.Where(x => x.Name.Contains(SelectText)).ToList().ToDataTable();
-                                    break;
-                                case "PhoneNumber":
-                                    UserTable = SelectText is null ? context.TblUser.ToList().ToDataTable() : context.TblUser.Where(x => x.PhoneNumber.Contains(SelectText)).ToList().ToDataTable();
-                                    break;
-                                default:
-                                    break;
-                            }
-                        });
-                    }
-                });
-
-                newThread.Start();
+                            case "Name":
+                                UserTable = SelectText is null ? context.TblUser.ToList().ToDataTable() : context.TblUser.Where(x => x.Name.Contains(SelectText)).ToList().ToDataTable();
+                                break;
+                            case "PhoneNumber":
+                                UserTable = SelectText is null ? context.TblUser.ToList().ToDataTable() : context.TblUser.Where(x => x.PhoneNumber.Contains(SelectText)).ToList().ToDataTable();
+                                break;
+                            default:
+                                break;
+                        }
+                    });
+                }
             }
             catch (Exception ex)
             {
@@ -189,37 +210,28 @@ namespace UserManagementSystem.UI.ViewModel
 
             try
             {
-                Thread newThread = new Thread(() =>
+                Thread.Sleep(1000);
+                var dataRowView = selectedItem as DataRowView;
+
+                using (var context = new DatabaseContext())
                 {
-                    Thread.Sleep(1000);
+                    var userInfo = context.TblUser.FirstOrDefault(x => x.Index == (int)dataRowView.Row.ItemArray[0]);
 
-                    var dataRowView = selectedItem as DataRowView;
-
-                    using (var context = new DatabaseContext())
+                    if (userInfo != null)
                     {
-                        var userInfo = context.TblUser.FirstOrDefault(x => x.Index == (int)dataRowView.Row.ItemArray[0]);
-                        lock (userInfo)
-                        {
-                            if (userInfo != null)
-                            {
-                                context.TblUser.Remove(userInfo);
-                                context.SaveChanges();
-                            }
-                            else
-                            {
-                                MessageBox.Show("이미 삭제되었거나 찾을 수 없는 데이터입니다.");
-                                return;
-                            }
-                        }
+                        context.TblUser.Remove(userInfo);
+                        context.SaveChanges();
                     }
+                    else //선택한 데이터를 검색하지 못할 경우 처리
+                    {
+                        MessageBox.Show("이미 삭제되었거나 찾을 수 없는 데이터입니다.");
+                        return;
+                    }
+                }
 
-                    MessageBox.Show("User 정보를 삭제했습니다.");
-                    SearchData();
-                });
-
-                newThread.Start();
+                MessageBox.Show("User 정보를 삭제했습니다.");
+                SearchData();
             }
-            
             catch (Exception ex)
             {
                 Logger.Error(ex.ToString());
@@ -258,23 +270,19 @@ namespace UserManagementSystem.UI.ViewModel
 
             try
             {
-                Thread newThread = new Thread(() =>
+                Thread.Sleep(1000);
+                using (var context = new DatabaseContext())
                 {
-                    Thread.Sleep(1000);
-                    using (var context = new DatabaseContext())
-                    {
-                        context.TblUser.Add(UserInfo);
-                        context.SaveChanges();
-                    }
-                });
-
-                newThread.Start();
+                    context.TblUser.Add(UserInfo);
+                    context.SaveChanges();
+                }
 
                 MessageBox.Show("User 정보가 추가했습니다.");
                 SearchData();
             }
             catch (Exception ex)
             {
+                MessageBox.Show("User 정보가 올바르지 않아 추가 할 수 없습니다.");
                 Logger.Error(ex.ToString());
             }
             finally
@@ -301,8 +309,8 @@ namespace UserManagementSystem.UI.ViewModel
                         IsInit      = (bool)dataRowView.Row.ItemArray[4],
                     };
 
-                    Name = UserInfo.Name;
-                    Age = UserInfo.Age.ToString();
+                    Name        = UserInfo.Name;
+                    Age         = UserInfo.Age.ToString();
                     PhoneNumber = UserInfo.PhoneNumber;
 
 
