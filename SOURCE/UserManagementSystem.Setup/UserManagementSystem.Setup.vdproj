@@ -197,7 +197,7 @@
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:UserManagementSystem"
         "ProductCode" = "8:{F8CACDD8-71B8-4962-9616-022882A69802}"
-        "PackageCode" = "8:{26C089F9-817B-46FD-8572-BFBB3A975AEF}"
+        "PackageCode" = "8:{D711BD9B-1C50-4E46-9849-296F701CB2A2}"
         "UpgradeCode" = "8:{DAE6D709-32A2-41BB-A452-9F73FDDC4A88}"
         "AspNetVersion" = "8:4.0.30319.0"
         "RestartWWWService" = "11:FALSE"
