@@ -1,11 +1,11 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Serilog;
+﻿using Serilog;
 using System;
+using System.Collections.Generic;
 using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
 using System.Data;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
@@ -31,122 +31,21 @@ namespace UserManagementSystem.UI.ViewModel
         public ICommand InsertCommand     { get; set; }
 
         public ComboBoxItem ComboBoxSelectItem    { get { return _comboBoxSelectItem;    } set { _comboBoxSelectItem    = value; OnPropertyChanged(); } }
-        public DataTable    UserTable             { get { return _userTable;             } set { _userTable             = value; OnPropertyChanged(); } }
+        public List<User>    UserList             { get { return _userList;             } set { _userList             = value; OnPropertyChanged(); } }
         public string       SelectText            { get { return _selectText;            } set { _selectText            = value; OnPropertyChanged(); } }
         public User         UserInfo              { get { return _userInfo;              } set { _userInfo              = value; OnPropertyChanged(); } }
         public Visibility   UserDataViewVisbility { get { return _userDataViewVisbility; } set { _userDataViewVisbility = value; OnPropertyChanged(); } }
         public Visibility   UpdateVisibility      { get { return _updateVisibility;      } set { _updateVisibility      = value; OnPropertyChanged(); } }
         public Visibility   InsertVisibility      { get { return _insertVisibility;      } set { _insertVisibility      = value; OnPropertyChanged(); } }
         public bool         IsNotRuning           { get { return _isNotRuning;           } set { _isNotRuning           = value; OnPropertyChanged(); } } //데이터 삽입 삭제 갱신 시 처리 중인 데이터에 접근하는 것을 막기 위해 사용하는 flag 변수
-
-        public string Name
-        {
-            get { return _name; }
-            set
-            {
-                //TextBox 내용 초기화 시 사용
-                if (value == string.Empty)
-                {
-                    _name = value;
-                    OnPropertyChanged();
-                    return;
-                }
-
-                //한국 이름 관련 정규표현식 작성
-                Regex regex = new Regex(@"^[가-힣]{1,5}$");
-
-                Match m = regex.Match(value);
-
-                if (!m.Success)
-                {
-                    MessageBox.Show("이름을 다시 입력해주세요");
-                    _name = string.Empty;
-                }
-                else
-                {
-                    _name = value;
-                    UserInfo.Name = _name;
-                }
-
-                OnPropertyChanged();
-            }
-        }
-
-        public string Age
-        {
-            get { return _age; }
-            set
-            {
-                //TextBox 내용 초기화 시 사용
-                if (value == string.Empty)
-                {
-                    _age = value;
-                    OnPropertyChanged();
-                    return;
-                }
-
-                //나이 관련 정규표현식 작성
-                Regex regex = new Regex(@"[0-9]{1,3}");
-
-                Match m = regex.Match(value);
-
-                if (!m.Success)
-                {
-                    MessageBox.Show("나이를 다시 입력해주세요");
-                    _age = string.Empty;
-                }
-                else
-                {
-                    _age = value;
-                    UserInfo.Age = _age == string.Empty ? (short)0 : short.Parse(_age);
-                }
-                OnPropertyChanged();
-            }
-        }
-
-        public string PhoneNumber
-        {
-            get { return _phoneNumber; } 
-            set
-            {
-                //TextBox 내용 초기화 시 사용
-                if (value == string.Empty)
-                {
-                    _phoneNumber = value;
-                    OnPropertyChanged();
-                    return;
-                }
-
-                //휴대폰 번호 관련 정규표현식 작성
-                Regex regex = new Regex(@"01{1}[016789]{1}[0-9]{3,4}[0-9]{4}");
-
-                Match m = regex.Match(value);
-
-                if (!m.Success)
-                {
-                    MessageBox.Show("전화번호를 다시 입력해주세요");
-                    _phoneNumber = string.Empty;
-                }
-                else
-                {
-                    _phoneNumber = value;
-                    UserInfo.PhoneNumber = _phoneNumber;
-                }
-
-                OnPropertyChanged();
-            }
-        }
         #endregion
 
         #region private 선언부
         // lock문에 사용될 객체
         private object       _lockObject = new object();
         private ComboBoxItem _comboBoxSelectItem = new ComboBoxItem() { Content = "Name" };
-        private DataTable    _userTable;
+        private List<User>   _userList;
         private User?        _userInfo;
-        private string       _name;
-        private string       _age;
-        private string       _phoneNumber;
         private string       _selectText;
         private Visibility   _userDataViewVisbility;
         private Visibility   _updateVisibility;
@@ -186,10 +85,10 @@ namespace UserManagementSystem.UI.ViewModel
                         switch (ComboBoxSelectItem.Content.ToString())
                         {
                             case "Name":
-                                UserTable = SelectText is null ? context.TblUser.ToList().ToDataTable() : context.TblUser.Where(x => x.Name.Contains(SelectText)).ToList().ToDataTable();
+                                UserList = SelectText is null ? context.TblUser.ToList() : context.TblUser.Where(x => x.Name.Contains(SelectText)).ToList();
                                 break;
                             case "PhoneNumber":
-                                UserTable = SelectText is null ? context.TblUser.ToList().ToDataTable() : context.TblUser.Where(x => x.PhoneNumber.Contains(SelectText)).ToList().ToDataTable();
+                                UserList = SelectText is null ? context.TblUser.ToList() : context.TblUser.Where(x => x.PhoneNumber.Contains(SelectText)).ToList();
                                 break;
                             default:
                                 break;
@@ -249,10 +148,6 @@ namespace UserManagementSystem.UI.ViewModel
             {
                 UserInfo = new User();
 
-                Name        = string.Empty;
-                Age         = string.Empty;
-                PhoneNumber = string.Empty;
-
                 UserDataViewVisbility = Visibility.Visible;
                 InsertVisibility      = Visibility.Visible;
                 UpdateVisibility      = Visibility.Collapsed;
@@ -270,15 +165,18 @@ namespace UserManagementSystem.UI.ViewModel
 
             try
             {
-                Thread.Sleep(1000);
-                using (var context = new DatabaseContext())
+                if (UserValidate(UserInfo))
                 {
-                    context.TblUser.Add(UserInfo);
-                    context.SaveChanges();
-                }
+                    Thread.Sleep(1000);
+                    using (var context = new DatabaseContext())
+                    {
+                        context.TblUser.Add(UserInfo);
+                        context.SaveChanges();
+                    }
 
-                MessageBox.Show("User 정보가 추가했습니다.");
-                SearchData();
+                    MessageBox.Show("User 정보가 추가했습니다.");
+                    SearchData();
+                }
             }
             catch (Exception ex)
             {
@@ -296,27 +194,24 @@ namespace UserManagementSystem.UI.ViewModel
         {
             try
             {
-                var dataRowView = selectedItem as DataRowView;
+                User userData = selectedItem as User;
 
-                if (dataRowView != null)
+                if (userData != null)
                 {
                     UserInfo = new User()
                     {
-                        Index       = (int)dataRowView.Row.ItemArray[0],
-                        Name        = dataRowView.Row.ItemArray[1].ToString(),
-                        Age         = (short)dataRowView.Row.ItemArray[2],
-                        PhoneNumber = dataRowView.Row.ItemArray[3].ToString(),
-                        IsInit      = (bool)dataRowView.Row.ItemArray[4],
+                        Index       = userData.Index,
+                        Name        = userData.Name,
+                        Age         = userData.Age,
+                        PhoneNumber = userData.PhoneNumber,
+                        IsInit      = userData.IsInit,
                     };
-
-                    Name        = UserInfo.Name;
-                    Age         = UserInfo.Age.ToString();
-                    PhoneNumber = UserInfo.PhoneNumber;
-
 
                     UserDataViewVisbility = Visibility.Visible;
                     UpdateVisibility      = Visibility.Visible;
                     InsertVisibility      = Visibility.Collapsed;
+
+                    OnPropertyChanged();
                 }
             }
             catch (Exception ex)
@@ -333,18 +228,21 @@ namespace UserManagementSystem.UI.ViewModel
 
             try
             {
-                Task.Delay(1000).Wait();
+                if (UserValidate(UserInfo))
+                {
+                    Task.Delay(1000).Wait();
 
-                await Task.Run(() => {
-                    using (var context = new DatabaseContext())
-                    {
-                        context.TblUser.Update(UserInfo);
-                        context.SaveChanges();
-                    }
-                });
+                    await Task.Run(() => {
+                        using (var context = new DatabaseContext())
+                        {
+                            context.TblUser.Update(UserInfo);
+                            context.SaveChanges();
+                        }
+                    });
 
-                MessageBox.Show("User 정보를 갱신했습니다.");
-                SearchData();
+                    MessageBox.Show("User 정보를 갱신했습니다.");
+                    SearchData();
+                }
             }
             catch (Exception ex)
             {
@@ -354,6 +252,31 @@ namespace UserManagementSystem.UI.ViewModel
             {
                 IsNotRuning = true;
                 OnPropertyChanged();
+            }
+        }
+
+        private bool UserValidate(User user)
+        {
+            var validationContext = new ValidationContext(user, null, null);
+            var validationResults = new List<System.ComponentModel.DataAnnotations.ValidationResult>();
+
+            bool isValid = Validator.TryValidateObject(user, validationContext, validationResults, true);
+
+            if (isValid)
+            {
+                return true;
+            }
+            else
+            {
+                string errorMessage = string.Empty;
+
+                foreach (var validationResult in validationResults)
+                {
+                    errorMessage += validationResult.ErrorMessage + "\n";
+                }
+
+                MessageBox.Show(errorMessage);
+                return false;
             }
         }
 

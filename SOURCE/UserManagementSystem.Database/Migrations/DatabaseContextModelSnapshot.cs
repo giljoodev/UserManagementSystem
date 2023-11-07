@@ -40,6 +40,7 @@ namespace UserManagementSystem.Database.Migrations
 
                     b.Property<string>("Name")
                         .IsRequired()
+                        .HasMaxLength(5)
                         .HasColumnType("NVARCHAR(5)")
                         .HasColumnOrder(1);
 

@@ -20,7 +20,7 @@
                     </StackPanel>
                     <Button Content="조회" HorizontalAlignment="Right" Width="80" Height="30" FontWeight="Bold" FontSize="12" Command="{Binding SearchCommand}" IsEnabled="{Binding IsNotRuning}" Margin="0,0,10,0"></Button>
                 </Grid>
-                <DataGrid ItemsSource="{Binding UserTable}" IsEnabled="{Binding IsNotRuning}" FontSize="13" IsReadOnly="True" AutoGenerateColumns="False" CanUserResizeColumns="False" Margin="10,30,10,10" MaxHeight="290">
+                <DataGrid ItemsSource="{Binding UserList}" IsEnabled="{Binding IsNotRuning}" FontSize="13" IsReadOnly="True" AutoGenerateColumns="False" CanUserResizeColumns="False" Margin="10,30,10,10" MaxHeight="290">
                     <DataGrid.Resources>
                         <Style TargetType="{x:Type DataGridColumnHeader}">
                             <Setter Property="HorizontalContentAlignment" Value="Left" />
@@ -72,16 +72,19 @@
                         <ColumnDefinition Width="3*"></ColumnDefinition>
                     </Grid.ColumnDefinitions>
                     <Grid.RowDefinitions>
-                        <RowDefinition></RowDefinition>
-                        <RowDefinition></RowDefinition>
-                        <RowDefinition></RowDefinition>
+                        <RowDefinition Height="1*"></RowDefinition>
+                        <RowDefinition Height="30"></RowDefinition>
+                        <RowDefinition Height="1*"></RowDefinition>
+                        <RowDefinition Height="30"></RowDefinition>
+                        <RowDefinition Height="1*"></RowDefinition>
+                        <RowDefinition Height="30"></RowDefinition>
                     </Grid.RowDefinitions>
                     <Label Grid.Row="0" Grid.Column="0" VerticalContentAlignment="Bottom">Name</Label>
-                    <Label Grid.Row="1" Grid.Column="0" VerticalContentAlignment="Bottom">Age</Label>
-                    <Label Grid.Row="2" Grid.Column="0" VerticalContentAlignment="Bottom">Phone Number</Label>
-                    <TextBox Grid.Row="0" Grid.Column="1" Text="{Binding Name}"        materialDesign:HintAssist.Hint="이름을 입력해주세요"     Style="{StaticResource MaterialDesignFloatingHintTextBox}" MaxLength="5"></TextBox>
-                    <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding Age}"         materialDesign:HintAssist.Hint="나이를 입력해주세요"     Style="{StaticResource MaterialDesignFloatingHintTextBox}" MaxLength="3"></TextBox>
-                    <TextBox Grid.Row="2" Grid.Column="1" Text="{Binding PhoneNumber}" materialDesign:HintAssist.Hint="전화번호를 입력해주세요" Style="{StaticResource MaterialDesignFloatingHintTextBox}" MaxLength="11"></TextBox>
+                    <Label Grid.Row="2" Grid.Column="0" VerticalContentAlignment="Bottom">Age</Label>
+                    <Label Grid.Row="4" Grid.Column="0" VerticalContentAlignment="Bottom">Phone Number</Label>
+                    <TextBox Grid.Row="0" Grid.Column="1" Text="{Binding UserInfo.Name,        UpdateSourceTrigger=PropertyChanged, ValidatesOnDataErrors=True}" materialDesign:HintAssist.Hint="이름을 입력해주세요"     Style="{StaticResource MaterialDesignFloatingHintTextBox}" MaxLength="5"></TextBox>
+                    <TextBox Grid.Row="2" Grid.Column="1" Text="{Binding UserInfo.Age,         UpdateSourceTrigger=PropertyChanged, ValidatesOnDataErrors=True}" materialDesign:HintAssist.Hint="나이를 입력해주세요"     Style="{StaticResource MaterialDesignFloatingHintTextBox}" MaxLength="3"></TextBox>
+                    <TextBox Grid.Row="4" Grid.Column="1" Text="{Binding UserInfo.PhoneNumber, UpdateSourceTrigger=PropertyChanged, ValidatesOnDataErrors=True}" materialDesign:HintAssist.Hint="전화번호를 입력해주세요" Style="{StaticResource MaterialDesignFloatingHintTextBox}" MaxLength="11"></TextBox>
                 </Grid>
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,10,0,0">
                     <Button Width="60" Content="갱신" Margin="10" Visibility="{Binding UpdateVisibility}" Command="{Binding UpdateCommand}" IsEnabled="{Binding IsNotRuning}" ></Button>
