@@ -56,6 +56,14 @@
             "PrerequisitesLocation" = "2:1"
             "Url" = "8:"
             "ComponentsUrl" = "8:"
+                "Items"
+                {
+                    "{EDC2488A-8267-493A-A98E-7D9C3B36CDF3}:.NETFramework,Version=v4.7.2"
+                    {
+                    "Name" = "8:Microsoft .NET Framework 4.7.2 (x86 and x64)"
+                    "ProductCode" = "8:.NETFramework,Version=v4.7.2"
+                    }
+                }
             }
         }
         "Release"
@@ -196,15 +204,15 @@
         {
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:UserManagementSystem"
-        "ProductCode" = "8:{F8CACDD8-71B8-4962-9616-022882A69802}"
-        "PackageCode" = "8:{D711BD9B-1C50-4E46-9849-296F701CB2A2}"
+        "ProductCode" = "8:{4B220BCE-A922-422A-A37F-1BF4B4B65855}"
+        "PackageCode" = "8:{16E44315-3E5D-4774-A948-3183C2836538}"
         "UpgradeCode" = "8:{DAE6D709-32A2-41BB-A452-9F73FDDC4A88}"
         "AspNetVersion" = "8:4.0.30319.0"
         "RestartWWWService" = "11:FALSE"
         "RemovePreviousVersions" = "11:FALSE"
         "DetectNewerInstalledVersion" = "11:TRUE"
         "InstallAllUsers" = "11:FALSE"
-        "ProductVersion" = "8:1.1.0"
+        "ProductVersion" = "8:1.2.0"
         "Manufacturer" = "8:Moais"
         "ARPHELPTELEPHONE" = "8:"
         "ARPHELPLINK" = "8:"

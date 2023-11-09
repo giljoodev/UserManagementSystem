@@ -105,16 +105,15 @@ namespace UserManagementSystem.UI.ViewModel
         private void RemoveUserData(object selectedItem)
         {
             IsNotRuning = false;
-            OnPropertyChanged();
 
             try
             {
                 Thread.Sleep(1000);
-                var dataRowView = selectedItem as DataRowView;
+                User userData = selectedItem as User;
 
                 using (var context = new DatabaseContext())
                 {
-                    var userInfo = context.TblUser.FirstOrDefault(x => x.Index == (int)dataRowView.Row.ItemArray[0]);
+                    var userInfo = context.TblUser.FirstOrDefault(x => x.Index == userData.Index);
 
                     if (userInfo != null)
                     {
@@ -138,7 +137,6 @@ namespace UserManagementSystem.UI.ViewModel
             finally
             {
                 IsNotRuning = true;
-                OnPropertyChanged();
             }
         }
 
@@ -161,7 +159,6 @@ namespace UserManagementSystem.UI.ViewModel
         private void InsertUserData()
         {
             IsNotRuning = false;
-            OnPropertyChanged();
 
             try
             {
@@ -186,7 +183,6 @@ namespace UserManagementSystem.UI.ViewModel
             finally
             {
                 IsNotRuning = true;
-                OnPropertyChanged();
             }
         }
 
@@ -210,8 +206,6 @@ namespace UserManagementSystem.UI.ViewModel
                     UserDataViewVisbility = Visibility.Visible;
                     UpdateVisibility      = Visibility.Visible;
                     InsertVisibility      = Visibility.Collapsed;
-
-                    OnPropertyChanged();
                 }
             }
             catch (Exception ex)
@@ -224,7 +218,6 @@ namespace UserManagementSystem.UI.ViewModel
         private async void UpdateUserData()
         {
             IsNotRuning = false;
-            OnPropertyChanged();
 
             try
             {
@@ -251,7 +244,6 @@ namespace UserManagementSystem.UI.ViewModel
             finally
             {
                 IsNotRuning = true;
-                OnPropertyChanged();
             }
         }
 
